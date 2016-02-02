@@ -28,7 +28,7 @@
 #define LOGSZ   1024
 
 /** Default log file name */
-char logger_filename[LOGFILENAME_SZ] = {"/tmp/memfs.log"} ;
+char logger_filename[LOGFILENAME_SZ] = {"/tmp/mefs.log"} ;
 
 /*---------------------------------------------------------------------------
 							Private to this module

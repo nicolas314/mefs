@@ -19,11 +19,11 @@
 #define MAGIC_SZ    4
 #define CANARI_SZ   8
 
-/* Magic number for memfs serialization files */
-static char memfs_magic[] = {0xca, 0xfe, 0xfa, 0xce};
+/* Magic number for mefs serialization files */
+static char mefs_magic[] = {0xca, 0xfe, 0xfa, 0xce};
 
 /* This is version 1.0 */
-static char memfs_version[] = { 0x01, 0x00 };
+static char mefs_version[] = { 0x01, 0x00 };
 
 /*
  * Initialize a memfile struct with blank fields
@@ -104,7 +104,7 @@ int memfile_readfiles(char * filename, char * password, memfile * root)
      */
     /* Check magic number */
     for (i=0 ; i<MAGIC_SZ ; i++) {
-        if (cur[i]!=memfs_magic[i]) {
+        if (cur[i]!=mefs_magic[i]) {
             logger("not a container: ", filename);
             munmap(buf, fileinfo.st_size);
             return -1 ;
@@ -112,8 +112,8 @@ int memfile_readfiles(char * filename, char * password, memfile * root)
     }
     cur += MAGIC_SZ ;
     /* Read version number */
-    if (cur[0]!=memfs_version[0] ||
-        cur[1]!=memfs_version[1]) {
+    if (cur[0]!=mefs_version[0] ||
+        cur[1]!=mefs_version[1]) {
         logger("unsupported version for: ", filename);
         munmap(buf, fileinfo.st_size);
         return -1 ;
@@ -219,9 +219,9 @@ int memfile_savefiles(char * filename, char * password, memfile * root)
         return 0 ;
     }
     /* Write magic number */
-    fwrite(memfs_magic, 1, MAGIC_SZ, f);
+    fwrite(mefs_magic, 1, MAGIC_SZ, f);
     /* Write version */
-    fwrite(memfs_version, 1, 2, f);
+    fwrite(mefs_version, 1, 2, f);
     /* Write nonce */
     fwrite(nonce, 1, NONCE_SZ, f);
     /* Generate and encrypt canari */

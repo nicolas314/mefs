@@ -77,13 +77,13 @@ static int rootdir_first(void)
 /*
  * Run only once at start
  */
-static void * memfs_init(struct fuse_conn_info * conn)
+static void * mefs_init(struct fuse_conn_info * conn)
 {
     time_t  now ;
     int i, ret ;
     memfile mf ;
 
-    logger("memfs_init");
+    logger("mefs_init");
     /* Setup root directory */
     rootfs.st_mode      = S_IFDIR | 0755 ;
     rootfs.st_ino       = 1 ;
@@ -116,9 +116,9 @@ static void * memfs_init(struct fuse_conn_info * conn)
 /*
  * Free everything!
  */
-static void memfs_destroy(void * p)
+static void mefs_destroy(void * p)
 {
-    logger("memfs_destroy");
+    logger("mefs_destroy");
     if (config.err<1) {
         memfile_savefiles(config.backup_filename,
                           config.password,
@@ -130,14 +130,14 @@ static void memfs_destroy(void * p)
 /*
  * Return file attributes. See stat(2)
  */
-static int memfs_getattr(const char *path, struct stat *stbuf)
+static int mefs_getattr(const char *path, struct stat *stbuf)
 {
     int i ;
 
     if (!path || ! stbuf) {
         return -ENOENT ;
     }
-    logger("memfs_getattr: %s", path);
+    logger("mefs_getattr: %s", path);
     if (!strcmp(path, "/")) {
         memcpy(stbuf, &rootfs, sizeof(struct stat));
         return 0 ;
@@ -154,7 +154,7 @@ static int memfs_getattr(const char *path, struct stat *stbuf)
  * Since there is only one directory to take care of, everything
  * is hardcoded here for rootdir.
  */
-static int memfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
+static int mefs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		       off_t offset, struct fuse_file_info *fi)
 {
     int i ;
@@ -162,7 +162,7 @@ static int memfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     if (!path || !buf) {
         return -ENOENT ;
     }
-    logger("memfs_readdir");
+    logger("mefs_readdir");
     if (strcmp(path, "/")) {
         return -ENOENT ;
     }
@@ -181,14 +181,14 @@ static int memfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 /*
  * Delete a file
  */
-static int memfs_unlink(const char *path)
+static int mefs_unlink(const char *path)
 {
     int i ;
 
     if (!path) {
         return -ENOENT ;
     }
-    logger("memfs_unlink %s", path);
+    logger("mefs_unlink %s", path);
     if ((i = rootdir_find(path))<0) {
         return -ENOENT ;
     }
@@ -207,7 +207,7 @@ static int memfs_unlink(const char *path)
  * Rename from to to. Source and target do not have to be in the same
  * directory, you may have to move the source. See rename(2)
  */
-static int memfs_rename(const char *from, const char *to)
+static int mefs_rename(const char *from, const char *to)
 {
     int i;
     time_t now ;
@@ -216,7 +216,7 @@ static int memfs_rename(const char *from, const char *to)
         return -ENOENT ;
     }
 
-    logger("memfs_rename %s %s", from, to);
+    logger("mefs_rename %s %s", from, to);
     i = rootdir_find(from);
     if (i<0) {
         return -ENOENT ;
@@ -234,13 +234,13 @@ static int memfs_rename(const char *from, const char *to)
 /*
  * Truncate or extend the given file to specified size.
 */
-static int memfs_truncate(const char *path, off_t size)
+static int mefs_truncate(const char *path, off_t size)
 {
     time_t now ;
     int i ;
     uint8_t * newbuf ;
 
-    logger("memfs_truncate: %s sz %d", path, (int)size);
+    logger("mefs_truncate: %s sz %d", path, (int)size);
 
     i = rootdir_find(path);
     if (i<0) {
@@ -263,7 +263,7 @@ static int memfs_truncate(const char *path, off_t size)
 /*
  * Modify file time access. Useful for 'touch'
  */
-static int memfs_utimens(const char * path, const struct timespec ts[2])
+static int mefs_utimens(const char * path, const struct timespec ts[2])
 {
     int i ;
     time_t now ;
@@ -281,7 +281,7 @@ static int memfs_utimens(const char * path, const struct timespec ts[2])
 /*
  * Create a new file
  */
-static int memfs_create(const char *path, mode_t mode, struct fuse_file_info *fi)
+static int mefs_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 {
     int i ;
     time_t now ;
@@ -289,7 +289,7 @@ static int memfs_create(const char *path, mode_t mode, struct fuse_file_info *fi
     if (!path) {
         return -1 ;
     }
-    logger("memfs_create %s", path);
+    logger("mefs_create %s", path);
     i = rootdir_find(path);
     if (i<0) {
         i = rootdir_first();
@@ -311,11 +311,11 @@ static int memfs_create(const char *path, mode_t mode, struct fuse_file_info *fi
  * error. If you use file handles, set fi->fh. See fuse_common.h for more
  * information about fi fields.
  */
-static int memfs_open(const char *path, struct fuse_file_info *fi)
+static int mefs_open(const char *path, struct fuse_file_info *fi)
 {
     int i ;
 
-    logger("memfs_open");
+    logger("mefs_open");
     if ((i=rootdir_find(path))<0) {
         return -ENOENT ;
     }
@@ -326,11 +326,11 @@ static int memfs_open(const char *path, struct fuse_file_info *fi)
  * Read size bytes from offset. Return number of read bytes, or 0 if offset
  * was at or beyond the end of the file.
  */
-static int memfs_read(const char *path, char *buf, size_t size, off_t offset,
+static int mefs_read(const char *path, char *buf, size_t size, off_t offset,
 		    struct fuse_file_info *fi)
 {
     int i ;
-    logger("memfs_read: %s off %d sz %d", path, (int)offset, (int)size);
+    logger("mefs_read: %s off %d sz %d", path, (int)offset, (int)size);
 
     if ((i=rootdir_find(path))<0) {
         return -ENOENT;
@@ -346,7 +346,7 @@ static int memfs_read(const char *path, char *buf, size_t size, off_t offset,
 /*
  * Same as read, but cannot return 0
  */
-static int memfs_write(const char *path, const char *buf, size_t size,
+static int mefs_write(const char *path, const char *buf, size_t size,
 		     off_t offset, struct fuse_file_info *fi)
 {
     int i ;
@@ -354,7 +354,7 @@ static int memfs_write(const char *path, const char *buf, size_t size,
     uint8_t * newbuf ;
     size_t newsz ;
 
-    logger("memfs_write: %s off %d sz %d", path, (int)offset, (int)size);
+    logger("mefs_write: %s off %d sz %d", path, (int)offset, (int)size);
     i = rootdir_find(path);
     if (i<0) {
         /* Create new file */
@@ -406,7 +406,7 @@ static int memfs_write(const char *path, const char *buf, size_t size,
  * Returns statistics about the filesystem. See statvfs(2)
  * You can ignore path
  */
-static int memfs_statfs(const char *path, struct statvfs *sfs)
+static int mefs_statfs(const char *path, struct statvfs *sfs)
 {
     int i ;
     int n=0 ;
@@ -419,7 +419,7 @@ static int memfs_statfs(const char *path, struct statvfs *sfs)
         }
     }
     
-    logger("memfs_statfs");
+    logger("mefs_statfs");
     sfs->f_bsize  = 4096 ;
     sfs->f_blocks = total_sz / sfs->f_bsize ;
     sfs->f_bfree  = 0 ;
@@ -433,20 +433,20 @@ static int memfs_statfs(const char *path, struct statvfs *sfs)
 /*
  * Link to the FUSE API
  */
-static struct fuse_operations memfs_oper = {
-    .init       = memfs_init,
-    .destroy    = memfs_destroy,
-	.getattr	= memfs_getattr,
-	.readdir	= memfs_readdir,
-	.unlink		= memfs_unlink,
-    .utimens    = memfs_utimens,
-	.rename		= memfs_rename,
-	.truncate	= memfs_truncate,
-    .create     = memfs_create,
-	.open		= memfs_open,
-	.read		= memfs_read,
-	.write		= memfs_write,
-	.statfs		= memfs_statfs,
+static struct fuse_operations mefs_oper = {
+    .init       = mefs_init,
+    .destroy    = mefs_destroy,
+	.getattr	= mefs_getattr,
+	.readdir	= mefs_readdir,
+	.unlink		= mefs_unlink,
+    .utimens    = mefs_utimens,
+	.rename		= mefs_rename,
+	.truncate	= mefs_truncate,
+    .create     = mefs_create,
+	.open		= mefs_open,
+	.read		= mefs_read,
+	.write		= mefs_write,
+	.statfs		= mefs_statfs,
 };
 
 /*
@@ -501,6 +501,6 @@ int main(int argc, char *argv[])
     config.password = getpass("Password: ");
 
     /* Start FUSE */
-	return fuse_main(args.argc, args.argv, &memfs_oper, NULL);
+	return fuse_main(args.argc, args.argv, &mefs_oper, NULL);
 }
 /* vim: set ts=4 et sw=4 tw=75 */

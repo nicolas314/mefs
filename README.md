@@ -18,18 +18,18 @@ file does not exist, it is created upon first start. Example:
     mkdir mnt
     ./mefs mnt dump
     Password: 
-    2016-02-02 10:06:35 memfs_init
+    2016-02-02 10:06:35 mefs_init
     2016-02-02 10:06:35 no such file: /home/nico/dev/fuse/mefs/dump
 
     # Copy a file into mnt, e.g. from another terminal
-    2016-02-02 10:07:44 memfs_getattr: /
-    2016-02-02 10:07:51 memfs_getattr: /test
-    2016-02-02 10:07:51 memfs_create /test
-    2016-02-02 10:07:51 memfs_getattr: /test
-    2016-02-02 10:07:54 memfs_write: /test off 0 sz 16
+    2016-02-02 10:07:44 mefs_getattr: /
+    2016-02-02 10:07:51 mefs_getattr: /test
+    2016-02-02 10:07:51 mefs_create /test
+    2016-02-02 10:07:51 mefs_getattr: /test
+    2016-02-02 10:07:54 mefs_write: /test off 0 sz 16
 
     # Stop mefs
-    ^C2016-02-02 10:08:18 memfs_destroy
+    ^C2016-02-02 10:08:18 mefs_destroy
 
 Your data are now encrypted in 'dump'.
 
