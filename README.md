@@ -79,9 +79,9 @@ Very few cryptographic primitives are needed in order to implement
 data-at-rest encryption. Choices made:
 
 - *PBKDF2* with *HMAC-SHA256* to derive a key from a password.
-  I picked SHA256 from a public domain implementation and rewrote the HMAC
-  and PBKDF2 based on RFC indications. There are test vectors available for
-  each part, compilable with 'make testing'.
+  I picked SHA256 from an open-source (MIT) implementation and rewrote the
+  HMAC and PBKDF2 based on RFC indications. There are test vectors
+  available for each part, compilable with 'make testing'.
 - *salsa20* for stream encryption. This encryption algorithm was written by
   Dan Bernstein as an alternative to other stream ciphers like RC4.
   salsa20 is insanely fast and offers the interesting property that you can
